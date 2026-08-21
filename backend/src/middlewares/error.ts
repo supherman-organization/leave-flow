@@ -5,6 +5,9 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({ message: err.message });
   }
+  if (err && typeof err === 'object' && (err as { name?: string }).name === 'MulterError') {
+    return res.status(400).json({ message: `Upload invalide : ${(err as Error).message}` });
+  }
   console.error(err);
   return res.status(500).json({ message: 'Erreur interne du serveur' });
 }
