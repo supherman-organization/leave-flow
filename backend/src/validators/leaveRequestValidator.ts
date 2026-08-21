@@ -8,3 +8,14 @@ export const createLeaveSchema = z.object({
   endPeriod: z.enum(['morning', 'afternoon']).optional().default('afternoon'),
   comment: z.string().optional(),
 });
+
+export const refuseSchema = z.object({
+    managerComment: z
+        .string({ required_error: 'Le commentaire est obligatoire pour un refus' })
+        .min(1, 'Le commentaire est obligatoire pour un refus'),
+});
+
+export const overrideStatusSchema = z.object({
+  status: z.enum(['pending', 'approved', 'refused', 'cancelled']),
+  managerComment: z.string().optional(),
+});
