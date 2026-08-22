@@ -5,7 +5,10 @@ import { AuthRequest } from '../middlewares/auth';
 export async function loginController(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body;
-    const result = await authService.login(email, password);
+    const result = await authService.login(email, password, {
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
     res.json(result);
   } catch (err) {
     next(err);

@@ -12,6 +12,7 @@ export interface IUser extends Document {
   mustSetPassword: boolean;
   manager?: Types.ObjectId;
   team?: string;
+  loginHistory?: { date: Date; ip?: string; userAgent?: string }[];
 }
 
 const userSchema = new Schema<IUser>(
@@ -25,6 +26,13 @@ const userSchema = new Schema<IUser>(
     mustSetPassword: { type: Boolean, default: true },
     manager: { type: Schema.Types.ObjectId, ref: 'User' },
     team: { type: String },
+    loginHistory: [
+      {
+        date: { type: Date, default: Date.now },
+        ip: String,
+        userAgent: String,
+      },
+    ],
   },
   { timestamps: true }
 );
