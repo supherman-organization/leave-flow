@@ -2,13 +2,18 @@ import type { LeaveType, LeaveStatus } from '../types/leave';
 import type { Role } from '../types/user';
 
 export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
-  cp: 'Congés Payés', rtt: 'RTT', unpaid: 'Sans solde',
-  sick: 'Maladie', training: 'Formation',
+  cp: 'Congés Payés', 
+  rtt: 'RTT', 
+  unpaid: 'Sans solde',
+  sick: 'Maladie', 
+  training: 'Formation',
 };
 
 export const STATUS_LABELS: Record<LeaveStatus, string> = {
-  pending: 'En attente', approved: 'Validé',
-  refused: 'Refusé', cancelled: 'Annulé',
+  pending: 'En attente', 
+  approved: 'Validé',
+  refused: 'Refusé', 
+  cancelled: 'Annulé',
 };
 
 export const STATUS_STYLES: Record<LeaveStatus, string> = {
@@ -19,5 +24,7 @@ export const STATUS_STYLES: Record<LeaveStatus, string> = {
 };
 
 export const ROLE_LABELS: Record<Role, string> = {
-  employee: 'Employé', manager: 'Manager', hr: 'RH',
+  employee: 'Employé',
+   manager: 'Manager', 
+   hr: 'RH',
 };
