@@ -14,150 +14,150 @@ import Pagination from '../components/ui/Pagination';
 const LIMIT = 5;
 
 export default function MyRequests() {
-  const [data, setData] = useState<LeaveRequest[]>([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<'' | 'pending'>('');
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<LeaveRequest | null>(null);
+    const [data, setData] = useState<LeaveRequest[]>([]);
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [page, setPage] = useState(1);
+    const [statusFilter, setStatusFilter] = useState<'' | 'pending'>('');
+    const [loading, setLoading] = useState(true);
+    const [selected, setSelected] = useState<LeaveRequest | null>(null);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    listMine({ page, limit: LIMIT, status: statusFilter || undefined })
-      .then((res) => {
-        setData(res.data);
-        setTotal(res.total);
-        setTotalPages(res.totalPages);
-      })
-      .catch((err) => toast.error(getApiError(err)))
-      .finally(() => setLoading(false));
-  }, [page, statusFilter]);
+    const load = useCallback(() => {
+        setLoading(true);
+        listMine({ page, limit: LIMIT, status: statusFilter || undefined })
+        .then((res) => {
+            setData(res.data);
+            setTotal(res.total);
+            setTotalPages(res.totalPages);
+        })
+        .catch((err) => toast.error(getApiError(err)))
+        .finally(() => setLoading(false));
+    }, [page, statusFilter]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { load(); }, [load]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    useEffect(() => { load(); }, [load]);
 
-  async function handleCancel(id: string) {
-    try {
-      await cancelRequest(id);
-      toast.success('Demande annulée');
-      setSelected(null);
-      load();
-    } catch (err) {
-      toast.error(getApiError(err));
+    async function handleCancel(id: string) {
+        try {
+        await cancelRequest(id);
+        toast.success('Demande annulée');
+        setSelected(null);
+        load();
+        } catch (err) {
+        toast.error(getApiError(err));
+        }
     }
-  }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">Mes demandes</h1>
-          <p className="text-sm text-slate-500">Consultez et suivez l'état de vos demandes de congés.</p>
-        </div>
-        <Link to="/new-request" className="inline-flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
-          <PlusCircle size={18} /> Nouvelle demande
-        </Link>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white">
-        {/* Filtres */}
-        <div className="flex gap-2 border-b border-slate-200 p-3">
-          <button
-            onClick={() => { setStatusFilter(''); setPage(1); }}
-            className={`rounded-lg px-3 py-1.5 text-sm ${statusFilter === '' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-500 hover:bg-slate-50'}`}
-          >
-            Toutes
-          </button>
-          <button
-            onClick={() => { setStatusFilter('pending'); setPage(1); }}
-            className={`rounded-lg px-3 py-1.5 text-sm ${statusFilter === 'pending' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-500 hover:bg-slate-50'}`}
-          >
-            En attente
-          </button>
-        </div>
-
-        {loading ? (
-          <p className="p-5 text-sm text-slate-400">Chargement…</p>
-        ) : data.length === 0 ? (
-          <p className="p-5 text-sm text-slate-400">Aucune demande.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
-                  <th className="px-5 py-3 font-medium">Type</th>
-                  <th className="px-5 py-3 font-medium">Date de début</th>
-                  <th className="px-5 py-3 font-medium">Date de fin</th>
-                  <th className="px-5 py-3 font-medium">Jours</th>
-                  <th className="px-5 py-3 font-medium">Statut</th>
-                  <th className="px-5 py-3 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((r) => (
-                  <tr key={r._id} className="border-b border-slate-50 last:border-0">
-                    <td className="px-5 py-3 font-medium text-slate-700">{LEAVE_TYPE_LABELS[r.type]}</td>
-                    <td className="px-5 py-3 text-slate-600">{formatDate(r.startDate)}</td>
-                    <td className="px-5 py-3 text-slate-600">{formatDate(r.endDate)}</td>
-                    <td className="px-5 py-3 text-slate-600">{r.days}</td>
-                    <td className="px-5 py-3"><Badge status={r.status} /></td>
-                    <td className="px-5 py-3">
-                      <button onClick={() => setSelected(r)} className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50">
-                        Détails
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {!loading && total > 0 && (
-          <Pagination page={page} totalPages={totalPages} total={total} limit={LIMIT} onPageChange={setPage} />
-        )}
-      </div>
-
-      {/* Modale de détail */}
-      <Modal open={!!selected} onClose={() => setSelected(null)} title="Détail de la demande">
-        {selected && (
-          <div className="space-y-3 text-sm">
-            <Row label="Type" value={LEAVE_TYPE_LABELS[selected.type]} />
-            <Row label="Début" value={formatDate(selected.startDate)} />
-            <Row label="Fin" value={formatDate(selected.endDate)} />
-            <Row label="Durée" value={formatDays(selected.days)} />
-            <div className="flex justify-between">
-              <span className="text-slate-500">Statut</span>
-              <Badge status={selected.status} />
+    return (
+        <div className="space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+            <h1 className="text-2xl font-bold text-slate-800">Mes demandes</h1>
+            <p className="text-sm text-slate-500">Consultez et suivez l'état de vos demandes de congés.</p>
             </div>
-            {selected.comment && <Row label="Votre commentaire" value={selected.comment} />}
-            {selected.managerComment && (
-              <div className="rounded-lg bg-slate-50 p-3">
-                <p className="text-xs font-semibold text-slate-500">Commentaire du manager</p>
-                <p className="mt-1 text-slate-700">{selected.managerComment}</p>
-              </div>
-            )}
-            {selected.status === 'pending' && (
-              <button
-                onClick={() => handleCancel(selected._id)}
-                className="mt-2 w-full rounded-lg border border-red-200 bg-red-50 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
-              >
-                Annuler cette demande
-              </button>
-            )}
-          </div>
-        )}
-      </Modal>
-    </div>
-  );
-}
+            <Link to="/new-request" className="inline-flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
+            <PlusCircle size={18} /> Nouvelle demande
+            </Link>
+        </div>
 
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-medium text-slate-700">{value}</span>
-    </div>
-  );
+        <div className="rounded-xl border border-slate-200 bg-white">
+            {/* Filtres */}
+            <div className="flex gap-2 border-b border-slate-200 p-3">
+            <button
+                onClick={() => { setStatusFilter(''); setPage(1); }}
+                className={`rounded-lg px-3 py-1.5 text-sm ${statusFilter === '' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+                Toutes
+            </button>
+            <button
+                onClick={() => { setStatusFilter('pending'); setPage(1); }}
+                className={`rounded-lg px-3 py-1.5 text-sm ${statusFilter === 'pending' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+                En attente
+            </button>
+            </div>
+
+            {loading ? (
+            <p className="p-5 text-sm text-slate-400">Chargement…</p>
+            ) : data.length === 0 ? (
+            <p className="p-5 text-sm text-slate-400">Aucune demande.</p>
+            ) : (
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                <thead>
+                    <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
+                    <th className="px-5 py-3 font-medium">Type</th>
+                    <th className="px-5 py-3 font-medium">Date de début</th>
+                    <th className="px-5 py-3 font-medium">Date de fin</th>
+                    <th className="px-5 py-3 font-medium">Jours</th>
+                    <th className="px-5 py-3 font-medium">Statut</th>
+                    <th className="px-5 py-3 font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((r) => (
+                    <tr key={r._id} className="border-b border-slate-50 last:border-0">
+                        <td className="px-5 py-3 font-medium text-slate-700">{LEAVE_TYPE_LABELS[r.type]}</td>
+                        <td className="px-5 py-3 text-slate-600">{formatDate(r.startDate)}</td>
+                        <td className="px-5 py-3 text-slate-600">{formatDate(r.endDate)}</td>
+                        <td className="px-5 py-3 text-slate-600">{r.days}</td>
+                        <td className="px-5 py-3"><Badge status={r.status} /></td>
+                        <td className="px-5 py-3">
+                        <button onClick={() => setSelected(r)} className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50">
+                            Détails
+                        </button>
+                        </td>
+                    </tr>
+                    ))}
+                </tbody>
+                </table>
+            </div>
+            )}
+
+            {!loading && total > 0 && (
+            <Pagination page={page} totalPages={totalPages} total={total} limit={LIMIT} onPageChange={setPage} />
+            )}
+        </div>
+
+        {/* Modale de détail */}
+        <Modal open={!!selected} onClose={() => setSelected(null)} title="Détail de la demande">
+            {selected && (
+            <div className="space-y-3 text-sm">
+                <Row label="Type" value={LEAVE_TYPE_LABELS[selected.type]} />
+                <Row label="Début" value={formatDate(selected.startDate)} />
+                <Row label="Fin" value={formatDate(selected.endDate)} />
+                <Row label="Durée" value={formatDays(selected.days)} />
+                <div className="flex justify-between">
+                <span className="text-slate-500">Statut</span>
+                <Badge status={selected.status} />
+                </div>
+                {selected.comment && <Row label="Votre commentaire" value={selected.comment} />}
+                {selected.managerComment && (
+                <div className="rounded-lg bg-slate-50 p-3">
+                    <p className="text-xs font-semibold text-slate-500">Commentaire du manager</p>
+                    <p className="mt-1 text-slate-700">{selected.managerComment}</p>
+                </div>
+                )}
+                {selected.status === 'pending' && (
+                <button
+                    onClick={() => handleCancel(selected._id)}
+                    className="mt-2 w-full rounded-lg border border-red-200 bg-red-50 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
+                >
+                    Annuler cette demande
+                </button>
+                )}
+            </div>
+            )}
+        </Modal>
+        </div>
+    );
+    }
+
+    function Row({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex justify-between">
+        <span className="text-slate-500">{label}</span>
+        <span className="font-medium text-slate-700">{value}</span>
+        </div>
+    );
 }

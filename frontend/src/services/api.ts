@@ -13,17 +13,17 @@ api.interceptors.request.use((config) => {
 
 // Déconnexion automatique sur 401 (token expiré/invalide)
 api.interceptors.response.use(
-  (res) => res,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+    (res) => res,
+    (error: AxiosError) => {
+        if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+        }
+        }
+        return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
 );
 
 export function getApiError(err: unknown): string {
