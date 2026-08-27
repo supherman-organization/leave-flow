@@ -10,6 +10,10 @@ import { formatDate, formatDays } from '../lib/format';
 import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
 import Pagination from '../components/ui/Pagination';
+import Spinner from '../components/ui/Spinner';
+import EmptyState from '../components/ui/EmptyState';
+import { useSort } from '../hooks/useSort';
+import SortableTh from '../components/ui/SortableTh';
 
 const LIMIT = 5;
 
@@ -47,6 +51,7 @@ export default function MyRequests() {
         toast.error(getApiError(err));
         }
     }
+    const { sorted, key, dir, toggle } = useSort<LeaveRequest>(data);
 
     return (
         <div className="space-y-6">
@@ -78,24 +83,24 @@ export default function MyRequests() {
             </div>
 
             {loading ? (
-            <p className="p-5 text-sm text-slate-400">Chargement…</p>
+            <Spinner />
             ) : data.length === 0 ? (
-            <p className="p-5 text-sm text-slate-400">Aucune demande.</p>
+            <EmptyState message="Aucune demande." />
             ) : (
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                 <thead>
                     <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
-                    <th className="px-5 py-3 font-medium">Type</th>
-                    <th className="px-5 py-3 font-medium">Date de début</th>
-                    <th className="px-5 py-3 font-medium">Date de fin</th>
-                    <th className="px-5 py-3 font-medium">Jours</th>
-                    <th className="px-5 py-3 font-medium">Statut</th>
-                    <th className="px-5 py-3 font-medium">Actions</th>
+                        <SortableTh label="Type" active={key === 'type'} dir={dir} onClick={() => toggle('type')} />
+                        <SortableTh label="Date de début" active={key === 'startDate'} dir={dir} onClick={() => toggle('startDate')} />
+                        <SortableTh label="Date de fin" active={key === 'endDate'} dir={dir} onClick={() => toggle('endDate')} />
+                        <SortableTh label="Jours" active={key === 'days'} dir={dir} onClick={() => toggle('days')} />
+                        <SortableTh label="Statut" active={key === 'status'} dir={dir} onClick={() => toggle('status')} />
+                        <th className="px-5 py-3 font-medium">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((r) => (
+                    {sorted.map((r) => (
                     <tr key={r._id} className="border-b border-slate-50 last:border-0">
                         <td className="px-5 py-3 font-medium text-slate-700">{LEAVE_TYPE_LABELS[r.type]}</td>
                         <td className="px-5 py-3 text-slate-600">{formatDate(r.startDate)}</td>
@@ -151,9 +156,9 @@ export default function MyRequests() {
         </Modal>
         </div>
     );
-    }
+}
 
-    function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex justify-between">
         <span className="text-slate-500">{label}</span>

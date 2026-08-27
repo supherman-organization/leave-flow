@@ -9,6 +9,8 @@ import { useAuth } from '../context/AuthContext';
 import { LEAVE_TYPE_LABELS } from '../lib/constants';
 import { formatRange, formatDays, formatDate } from '../lib/format';
 import Badge from '../components/ui/Badge';
+import Spinner from '../components/ui/Spinner';
+import EmptyState from '../components/ui/EmptyState';
 
 export default function Dashboard() {
     const { user } = useAuth();
@@ -22,12 +24,8 @@ export default function Dashboard() {
         .finally(() => setLoading(false));
     }, []);
 
-    if (loading) {
-        return <div className="p-6 text-slate-400">Chargement du tableau de bord…</div>;
-    }
-    if (!data) {
-        return <div className="p-6 text-slate-400">Aucune donnée disponible.</div>;
-    }
+    if (loading) return <Spinner label="Chargement du tableau de bord…" />;
+    if (!data) return <EmptyState message="Aucune donnée disponible." />;
 
     const isReviewer = data.role === 'manager' || data.role === 'hr';
 
@@ -98,7 +96,7 @@ export default function Dashboard() {
             </div>
 
             {data.recentRequests.length === 0 ? (
-            <p className="p-5 text-sm text-slate-400">Aucune demande pour le moment.</p>
+            <EmptyState message="Aucune demande pour le moment." />
             ) : (
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -132,21 +130,21 @@ export default function Dashboard() {
         </div>
         </div>
     );
-    }
+}
 
 function SummaryCard({
-  icon, label, value, hint,
-}: { icon: React.ReactNode; label: string; value: string; hint: string }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase text-slate-400">{label}</p>
-        <span className="text-slate-400">{icon}</span>
-      </div>
-      <p className="mt-4 text-3xl font-bold text-slate-800">{value}</p>
-      <p className="text-xs text-slate-400">{hint}</p>
-    </div>
-  );
+    icon, label, value, hint,
+    }: { icon: React.ReactNode; label: string; value: string; hint: string }) {
+    return (
+        <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase text-slate-400">{label}</p>
+            <span className="text-slate-400">{icon}</span>
+        </div>
+        <p className="mt-4 text-3xl font-bold text-slate-800">{value}</p>
+        <p className="text-xs text-slate-400">{hint}</p>
+        </div>
+    );
 }
 
 function UpcomingCard({ leaves }: { leaves: DashboardResponse['upcomingLeaves'] }) {
