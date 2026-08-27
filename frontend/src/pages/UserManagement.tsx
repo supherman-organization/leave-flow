@@ -1,14 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { UserPlus, Pencil, KeyRound, Power, Search } from 'lucide-react';
-import { listUsers, createUser, updateUser, setUserStatus, resetUserPassword, 
+import {
+  listUsers, createUser, updateUser, setUserStatus, resetUserPassword,
+   type CreateUserInput,
 } from '../services/userService';
-import type { CreateUserInput } from '../services/userService';
 import { getApiError } from '../services/api';
 import type { User, Role, UserSummary } from '../types/user';
 import { ROLE_LABELS } from '../lib/constants';
 import Modal from '../components/ui/Modal';
 import Pagination from '../components/ui/Pagination';
+import Spinner from '../components/ui/Spinner';
+import EmptyState from '../components/ui/EmptyState';
 
 const LIMIT = 8;
 const ROLES: Role[] = ['employee', 'manager', 'hr'];
@@ -25,16 +28,13 @@ export default function UserManagement() {
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
 
-    // Liste des managers (pour le select d'affectation)
     const [managers, setManagers] = useState<User[]>([]);
 
-    // Modale création / édition
     const [formOpen, setFormOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [form, setForm] = useState<CreateUserInput>(emptyForm);
     const [saving, setSaving] = useState(false);
 
-    // Modale mot de passe temporaire
     const [tempPassword, setTempPassword] = useState<string | null>(null);
 
     const load = useCallback(() => {
@@ -52,7 +52,6 @@ export default function UserManagement() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => { load(); }, [load]);
 
-    // Charge tous les managers une fois (pour le select)
     useEffect(() => {
         listUsers({ page: 1, limit: 100, role: 'manager' })
         .then((res) => setManagers(res.data))
@@ -151,9 +150,9 @@ export default function UserManagement() {
         {/* Tableau */}
         <div className="rounded-xl border border-slate-200 bg-white">
             {loading ? (
-            <p className="p-5 text-sm text-slate-400">Chargement…</p>
+            <Spinner />
             ) : data.length === 0 ? (
-            <p className="p-5 text-sm text-slate-400">Aucun utilisateur.</p>
+            <EmptyState message="Aucun utilisateur." />
             ) : (
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
