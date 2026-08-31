@@ -40,5 +40,7 @@ const leaveRequestSchema = new Schema<ILeaveRequest>(
 );
 
 leaveRequestSchema.index({ user: 1, status: 1 });
+leaveRequestSchema.index({ startDate: 1, endDate: 1 });  
+
 
 export const LeaveRequest = mongoose.model<ILeaveRequest>('LeaveRequest', leaveRequestSchema);
