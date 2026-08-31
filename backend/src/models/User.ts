@@ -37,4 +37,6 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
+userSchema.index({ manager: 1 });
+
 export const User = mongoose.model<IUser>('User', userSchema);
